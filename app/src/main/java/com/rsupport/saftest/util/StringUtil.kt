@@ -1,6 +1,8 @@
 package com.rsupport.saftest.util
 
 import android.net.Uri
+import java.text.SimpleDateFormat
+import java.util.Date
 
 object StringUtil {
     fun isSameRoute(
@@ -43,4 +45,10 @@ object StringUtil {
 
     fun isUriInNextPath(uri: Uri, nextPath: String) =
         uri.path?.split("/")?.size == nextPath.split("/").size + 1
+
+    fun formatEpochTime(epochTime: Long): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val date = Date(epochTime)
+        return sdf.format(date)
+    }
 }

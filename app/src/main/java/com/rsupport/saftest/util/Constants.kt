@@ -1,4 +1,4 @@
-package com.rsupport.saftest
+package com.rsupport.saftest.util
 
 import android.os.Environment
 

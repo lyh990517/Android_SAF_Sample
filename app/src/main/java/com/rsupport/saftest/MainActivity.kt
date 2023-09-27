@@ -1,6 +1,5 @@
 package com.rsupport.saftest
 
-import android.Manifest
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -9,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.rsupport.saftest.Constants.HOME_DIR
+import com.rsupport.saftest.util.Constants.HOME_DIR
 import com.rsupport.saftest.ui.theme.SaftestTheme
 
 class MainActivity : ComponentActivity() {
