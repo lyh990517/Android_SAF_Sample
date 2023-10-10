@@ -46,7 +46,7 @@ fun FileItem(file: ExplorerItem, onClick: (String) -> Unit) {
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .clickable { onClick(file.path) },
+            .clickable { onClick(file.path.path ?: "") },
         elevation = CardDefaults.cardElevation(10.dp),
         colors = CardDefaults.cardColors(Color.LightGray)
     ) {
@@ -57,8 +57,8 @@ fun FileItem(file: ExplorerItem, onClick: (String) -> Unit) {
                         .padding(10.dp)
                         .size(width = 20.dp, height = 20.dp),
                     painter = when (file.itemType) {
-                        1 -> painterResource(id = R.drawable.folder)
-                        2 -> painterResource(id = R.drawable.file)
+                        ItemType.Directory.value -> painterResource(id = R.drawable.folder)
+                        ItemType.File.value -> painterResource(id = R.drawable.file)
                         else -> painterResource(id = R.drawable.file)
                     },
                     contentDescription = ""
@@ -71,7 +71,7 @@ fun FileItem(file: ExplorerItem, onClick: (String) -> Unit) {
             }
             Column(Modifier.padding(8.dp)) {
                 CompositionLocalProvider(
-                    LocalTextStyle provides TextStyle(fontSize = 12.sp)
+                    LocalTextStyle provides TextStyle(fontSize = 12.sp),
                 ) {
                     Text(text = "modified: ${StringUtil.formatEpochTime(file.modifyDate)}")
                     Text(text = "size: ${file.size} byte")

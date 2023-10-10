@@ -1,10 +1,11 @@
 package com.rsupport.saftest.model
 
+import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.rsupport.saftest.util.StringUtil
 
 data class ExplorerItem(
-    val path: String,
+    val path: Uri,
     val displayName: String,
     val itemType: Int,
     val size: Long,
@@ -16,7 +17,7 @@ data class ExplorerItem(
     companion object {
         fun create(file: DocumentFile) =
             ExplorerItem(
-                path = file.uri.path ?: "",
+                path = file.uri,
                 displayName = file.uri.pathSegments.last(),
                 attribute = -1, // ??
                 iconData = "temp", // ??

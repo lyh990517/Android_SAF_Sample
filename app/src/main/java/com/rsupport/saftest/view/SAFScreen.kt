@@ -53,7 +53,7 @@ fun SAFScreen(
     val fileList = remember { mutableStateListOf<ExplorerItem>() }
     val isMultiple = rememberSaveable { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.StartActivityForResult() //TODO 통합앱 파일 전송 참고해야함
     ) { activityResult ->
         with(activityResult.data) {
             this?.clipData.let { data ->
@@ -130,7 +130,7 @@ private fun SAFContent(
             LazyColumn(Modifier.weight(1f)) {
                 items(fileList.toList()) { file ->
                     FileItem(file) {
-                        Log.e("path", file.path)
+                        Log.e("path", file.path.path ?: "")
                     }
                 }
             }

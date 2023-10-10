@@ -3,12 +3,14 @@ package com.rsupport.saftest.viewmodel
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import com.rsupport.saftest.state.SAFState
 import com.rsupport.saftest.model.ExplorerItem
+import com.rsupport.saftest.model.ItemType
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.FileNotFoundException
 
@@ -32,14 +34,32 @@ class SAFViewModel : ViewModel() {
     }
 
     fun sendFile(contentResolver: ContentResolver) {
-        Log.e("sendFileSize", "${_fileList.value?.size}")
+        Log.e("fileSend", "Selected File Count: ${_fileList.value?.size}")
         try {
-            _fileList.value?.forEach {
-                contentResolver.openInputStream(Uri.parse(it.path)).use { stream ->
+            _fileList.value?.forEachIndexed { index, file ->
+                contentResolver.openInputStream(file.path).use { stream ->
+                    var fileSend = 0
+                    stream?.let {
+                        Log.e("fileSend", "________________________________________")
+                        Log.e("fileSend", "Start $index")
+                        val buffer = ByteArray(1024 * 16)
+                        while (true) {
+                            if (file.itemType == ItemType.Directory.value){
+                                Log.e("fileSend","is Directory")
+                                break
+                            }
+                            val readSize = stream.read(buffer)
+                            Log.e("fileSend", "${file.size} byte / $fileSend byte")
+                            // writePacket
+                            fileSend += readSize
+                            if (readSize < 0) break
+                        }
+                        Log.e("fileSend", "Complete $index")
+                    }
 
                 }
             }
-        } catch (e: FileNotFoundException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
