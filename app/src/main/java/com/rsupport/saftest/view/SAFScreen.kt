@@ -61,16 +61,18 @@ fun SAFScreen(
         ActivityResultContracts.StartActivityForResult()
     ) { activityResult ->
         with(activityResult.data) {
-            this?.clipData.let { data ->
-                val size = data?.itemCount
-                repeat(size ?: 0) { idx ->
-                    data?.getItemAt(idx)?.uri?.let { uri ->
-                        getFileInfo(uri, context, fileList)
-                    }
-                }
-
-            }
+//            this?.clipData.let { data ->
+//                val size = data?.itemCount
+//                Log.e("folder","$size")
+//                repeat(size ?: 0) { idx ->
+//                    data?.getItemAt(idx)?.uri?.let { uri ->
+//                        getFileInfo(uri, context, fileList)
+//                    }
+//                }
+//
+//            }
             this?.data?.let { file ->
+                Log.e("file","123")
                 getFolderInfo(file, context, fileList)
             }
         }

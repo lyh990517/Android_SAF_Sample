@@ -60,7 +60,7 @@ class SAFViewModel : ViewModel() {
                         Log.e("fileSend", "Start $index")
                         val buffer = ByteArray(1024 * 16)
                         while (true) {
-                            delay(100)
+                            delay(20)
                             uploadProgress.value =
                                 (uploaded.value.toDouble() / uploadSize.value) * 100
                             if (file.itemType == ItemType.Directory.value) {
@@ -94,19 +94,23 @@ class SAFViewModel : ViewModel() {
         _uiState.value = SAFState.Loading
         try {
             val file: DocumentFile? = DocumentFile.fromTreeUri(context, folderUri)
-            if (file != null && file.isDirectory) {
-                Log.e("ExplorerItem", ExplorerItem.create(file).toString())
-                val files: Array<DocumentFile> = file.listFiles()
-                for (childFile in files) {
-                    fileList.add(ExplorerItem.create(childFile))
-                    getFolderInfo(childFile.uri, context, fileList, depth + 1)
+            when {
+                file != null && file.isDirectory -> {
+                    Log.e("ExplorerItem", ExplorerItem.create(file).toString())
+                    val files: Array<DocumentFile> = file.listFiles()
+                    fileList.add(ExplorerItem.create(file))
+                    for (childFile in files) {
+                        Log.e("add", "add1")
+                        getFolderInfo(childFile.uri, context, fileList, depth + 1)
+                    }
                 }
-            }
-            if (file != null && file.isFile) {
-                fileList.add(ExplorerItem.create(file))
-            }
-            if (depth == 0) {
-                _uiState.value = SAFState.Idle
+
+                file != null && file.isFile -> {
+                    fileList.add(ExplorerItem.create(file))
+                    Log.e("add", "add2")
+                }
+
+                depth == 0 -> _uiState.value = SAFState.Idle
             }
         } catch (e: RuntimeException) {
             getFileInfo(folderUri, context, fileList)
@@ -125,6 +129,7 @@ class SAFViewModel : ViewModel() {
             if (file != null && file.isFile) {
                 Log.e("ExplorerItem", ExplorerItem.create(file).toString())
                 fileList.add(ExplorerItem.create(file))
+                Log.e("add", "add3")
             }
             _uiState.value = SAFState.Idle
         } catch (e: RuntimeException) {
