@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,13 +50,15 @@ fun SAFScreen(
     onSet: (SnapshotStateList<ExplorerItem>) -> Unit,
     onSend: () -> Unit,
     uploadProgress: State<Double>,
-    fileIndex: State<Int>
+    fileIndex: State<Int>,
+    totalSize: State<Int>,
+    uploaded: State<Int>
 ) {
     val context = LocalContext.current
     val fileList = remember { mutableStateListOf<ExplorerItem>() }
     val isMultiple = rememberSaveable { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult() //TODO 통합앱 파일 전송 참고해야함
+        ActivityResultContracts.StartActivityForResult()
     ) { activityResult ->
         with(activityResult.data) {
             this?.clipData.let { data ->
@@ -82,7 +85,9 @@ fun SAFScreen(
                 onFolderSelect,
                 onSend,
                 uploadProgress,
-                fileIndex
+                fileIndex,
+                totalSize,
+                uploaded
             )
         }
 
@@ -121,7 +126,9 @@ private fun SAFContent(
     onFolderSelect: () -> Unit,
     onSend: () -> Unit,
     uploadProgress: State<Double>,
-    fileIndex: State<Int>
+    fileIndex: State<Int>,
+    totalSize: State<Int>,
+    uploaded: State<Int>
 ) {
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -138,12 +145,13 @@ private fun SAFContent(
                 )
             }
         }
-        Text(text = "upload : ${uploadProgress.value} %", modifier = Modifier.padding(10.dp))
-        Text(text = "count : ${fileList.size} / ${fileIndex.value}", modifier = Modifier.padding(10.dp))
+        Text(text = "uploadProgress : ${uploadProgress.value} %", modifier = Modifier.padding(10.dp))
+        Text(text = "uploadSize : ${totalSize.value} / ${uploaded.value} byte", modifier = Modifier.padding(10.dp))
+        Text(text = "fileCount : ${fileList.size} / ${fileIndex.value}", modifier = Modifier.padding(10.dp))
         if (fileList.isNotEmpty()) {
             LazyColumn(Modifier.weight(1f)) {
-                items(fileList.toList()) { file ->
-                    FileItem(file) {
+                itemsIndexed(fileList.toList()) { index, file ->
+                    FileItem(file,index,fileIndex) {
                         Log.e("path", file.path.path ?: "")
                     }
                 }

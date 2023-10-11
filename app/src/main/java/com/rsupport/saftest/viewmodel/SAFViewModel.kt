@@ -22,10 +22,10 @@ class SAFViewModel : ViewModel() {
     val uiState = _uiState
 
     private val _fileList = MutableStateFlow<List<ExplorerItem>?>(null)
-
-    val uploadProgress = MutableStateFlow(0.0)
     val uploadSize = MutableStateFlow(0)
     val uploaded = MutableStateFlow(0)
+
+    val uploadProgress = MutableStateFlow(0.0)
     val fileIndex = MutableStateFlow(0)
 
     fun selectFile() {
@@ -47,7 +47,6 @@ class SAFViewModel : ViewModel() {
         uploaded.value = 0
         uploadSize.value = 0
         uploadProgress.value = 0.0
-        fileIndex.value = 0
         try {
             uploadSize.value =
                 _fileList.value?.filter { it.itemType == ItemType.File.value }
@@ -79,6 +78,7 @@ class SAFViewModel : ViewModel() {
 
                 }
             }
+            fileIndex.value = 0 // 상태 변화를 통한 recompose 를 위함
             Log.e("upload", "${uploaded.value} ${uploadSize.value}")
         } catch (e: Exception) {
             e.printStackTrace()
