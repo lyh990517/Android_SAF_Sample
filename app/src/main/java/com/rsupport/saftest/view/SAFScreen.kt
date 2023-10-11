@@ -47,7 +47,9 @@ fun SAFScreen(
     onFileSelect: () -> Unit,
     onFolderSelect: () -> Unit,
     onSet: (SnapshotStateList<ExplorerItem>) -> Unit,
-    onSend: () -> Unit
+    onSend: () -> Unit,
+    uploadProgress: State<Double>,
+    fileIndex: State<Int>
 ) {
     val context = LocalContext.current
     val fileList = remember { mutableStateListOf<ExplorerItem>() }
@@ -73,7 +75,15 @@ fun SAFScreen(
     }
     when (uiState.value) {
         SAFState.Idle -> {
-            SAFContent(fileList, isMultiple, onFileSelect, onFolderSelect, onSend)
+            SAFContent(
+                fileList,
+                isMultiple,
+                onFileSelect,
+                onFolderSelect,
+                onSend,
+                uploadProgress,
+                fileIndex
+            )
         }
 
         SAFState.Loading -> {
@@ -109,7 +119,9 @@ private fun SAFContent(
     isMultiple: MutableState<Boolean>,
     onFileSelect: () -> Unit,
     onFolderSelect: () -> Unit,
-    onSend: () -> Unit
+    onSend: () -> Unit,
+    uploadProgress: State<Double>,
+    fileIndex: State<Int>
 ) {
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -126,6 +138,8 @@ private fun SAFContent(
                 )
             }
         }
+        Text(text = "upload : ${uploadProgress.value} %", modifier = Modifier.padding(10.dp))
+        Text(text = "count : ${fileList.size} / ${fileIndex.value}", modifier = Modifier.padding(10.dp))
         if (fileList.isNotEmpty()) {
             LazyColumn(Modifier.weight(1f)) {
                 items(fileList.toList()) { file ->
@@ -135,9 +149,11 @@ private fun SAFContent(
                 }
             }
         } else {
-            Box(modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
                 Text(text = "Empty", Modifier.align(Alignment.Center))
             }
         }

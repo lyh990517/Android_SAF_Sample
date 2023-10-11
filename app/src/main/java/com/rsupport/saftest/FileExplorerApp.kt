@@ -30,7 +30,9 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
                 onFileSelect = { viewModel.selectFile() },
                 onFolderSelect = { viewModel.selectFolder() },
                 onSet = { viewModel.setFileList(it) },
-                onSend = { viewModel.sendFile(context.contentResolver) }
+                onSend = { viewModel.sendFile(context.contentResolver) },
+                uploadProgress = viewModel.uploadProgress.collectAsState(),
+                fileIndex = viewModel.fileIndex.collectAsState()
             )
         }
     }

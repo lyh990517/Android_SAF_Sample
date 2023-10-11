@@ -8,10 +8,13 @@ import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.rsupport.saftest.state.SAFState
 import com.rsupport.saftest.model.ExplorerItem
 import com.rsupport.saftest.model.ItemType
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 
 class SAFViewModel : ViewModel() {
@@ -19,6 +22,11 @@ class SAFViewModel : ViewModel() {
     val uiState = _uiState
 
     private val _fileList = MutableStateFlow<List<ExplorerItem>?>(null)
+
+    val uploadProgress = MutableStateFlow(0.0)
+    val uploadSize = MutableStateFlow(0)
+    val uploaded = MutableStateFlow(0)
+    val fileIndex = MutableStateFlow(0)
 
     fun selectFile() {
         _uiState.value = SAFState.OnSAFFile
@@ -33,32 +41,45 @@ class SAFViewModel : ViewModel() {
         _uiState.value = SAFState.Idle
     }
 
-    fun sendFile(contentResolver: ContentResolver) {
+    // 예제 함수
+    fun sendFile(contentResolver: ContentResolver) = viewModelScope.launch {
         Log.e("fileSend", "Selected File Count: ${_fileList.value?.size}")
+        uploaded.value = 0
+        uploadSize.value = 0
+        uploadProgress.value = 0.0
+        fileIndex.value = 0
         try {
+            uploadSize.value =
+                _fileList.value?.filter { it.itemType == ItemType.File.value }
+                    ?.sumOf { it.size.toInt() }!!
+            Log.e("size", "${uploadSize.value}")
             _fileList.value?.forEachIndexed { index, file ->
+                fileIndex.value = index + 1
                 contentResolver.openInputStream(file.path).use { stream ->
-                    var fileSend = 0
                     stream?.let {
                         Log.e("fileSend", "________________________________________")
                         Log.e("fileSend", "Start $index")
                         val buffer = ByteArray(1024 * 16)
                         while (true) {
-                            if (file.itemType == ItemType.Directory.value){
-                                Log.e("fileSend","is Directory")
+                            delay(100)
+                            uploadProgress.value =
+                                (uploaded.value.toDouble() / uploadSize.value) * 100
+                            if (file.itemType == ItemType.Directory.value) {
+                                Log.e("fileSend", "is Directory")
                                 break
                             }
                             val readSize = stream.read(buffer)
-                            Log.e("fileSend", "${file.size} byte / $fileSend byte")
-                            // writePacket
-                            fileSend += readSize
                             if (readSize < 0) break
+                            Log.e("fileSend", "${uploaded.value} byte / ${uploadSize.value} byte")
+                            // writePacket
+                            uploaded.value += readSize
                         }
                         Log.e("fileSend", "Complete $index")
                     }
 
                 }
             }
+            Log.e("upload", "${uploaded.value} ${uploadSize.value}")
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -41,59 +41,6 @@ import com.rsupport.saftest.util.StringUtil
 import com.rsupport.saftest.util.StringUtil.removeLastPathComponent
 
 @Composable
-fun FileItem(file: ExplorerItem, onClick: (String) -> Unit) {
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth()
-            .clickable { onClick(file.path.path ?: "") },
-        elevation = CardDefaults.cardElevation(10.dp),
-        colors = CardDefaults.cardColors(Color.LightGray)
-    ) {
-        Column(Modifier.fillMaxSize()) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Image(
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(width = 20.dp, height = 20.dp),
-                    painter = when (file.itemType) {
-                        ItemType.Directory.value -> painterResource(id = R.drawable.folder)
-                        ItemType.File.value -> painterResource(id = R.drawable.file)
-                        else -> painterResource(id = R.drawable.file)
-                    },
-                    contentDescription = ""
-                )
-                Text(
-                    text = file.displayName,
-                    modifier = Modifier
-                        .padding(10.dp)
-                )
-            }
-            Column(Modifier.padding(8.dp)) {
-                CompositionLocalProvider(
-                    LocalTextStyle provides TextStyle(fontSize = 12.sp),
-                ) {
-                    Text(text = "modified: ${StringUtil.formatEpochTime(file.modifyDate)}")
-                    Text(text = "size: ${file.size} byte")
-                    Text(
-                        text = "Type: ${
-                            when (file.itemType) {
-                                1 -> ItemType.Directory
-                                2 -> ItemType.File
-                                else -> ItemType.Dot
-                            }
-                        }"
-                    )
-                    Text(text = "attribute: ${file.attribute}")
-                    Text(text = "iconData: ${file.iconData}")
-                    Text(text = "path: ${file.path}")
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun FileExplorerScreen(
     navHostController: NavHostController,
     explore: (path: String, context: Context) -> List<Uri>
@@ -108,15 +55,6 @@ fun FileExplorerScreen(
     ) {
         Text(text = "no")
         LazyColumn(Modifier.weight(6f)) {
-//            items(files.value) { file ->
-//                FileItem(file) { nextPath ->
-//                    if (isSameRoute(currentPath, nextPath) && !isFile(nextPath)) {
-//                        currentPath += extractLastPathComponent(nextPath)
-//                        files.value = explore(currentPath, context)
-//                        Log.e("path", extractLastPathComponent(currentPath))
-//                    }
-//                }
-//            }
         }
     }
     BackHandler {
