@@ -62,7 +62,7 @@ fun FileItem(
                     contentDescription = ""
                 )
                 Text(
-                    text = file.displayName,
+                    text = StringUtil.extractLastPathComponent(file.displayName),
                     modifier = Modifier
                         .padding(10.dp)
                 )

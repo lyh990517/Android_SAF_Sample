@@ -12,14 +12,12 @@ object StringUtil {
 
     fun extractLastPathComponent(path: String): String {
         val lastIndexOfSlash = path.lastIndexOf('/')
-
-        if (lastIndexOfSlash >= 0) {
-            return path.substring(lastIndexOfSlash)
+        return if (lastIndexOfSlash >= 0) {
+            path.substring(lastIndexOfSlash + 1)
+        } else {
+            path
         }
-
-        return path
     }
-
     fun removeLastPathComponent(path: String): String {
         val lastIndexOfSlash = path.lastIndexOf('/')
 
