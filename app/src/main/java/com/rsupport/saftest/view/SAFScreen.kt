@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,13 +52,16 @@ fun SAFScreen(
     onSet: (SnapshotStateList<ExplorerItem>) -> Unit,
     onSend: () -> Unit,
     onCancel: () -> Unit,
+    onInfo: () -> Unit,
     uploadProgress: State<Double>,
     fileIndex: State<Int>,
     totalSize: State<Int>,
     uploaded: State<Int>,
 ) {
     val context = LocalContext.current
-    val fileList = remember { mutableStateListOf<ExplorerItem>() }
+    val fileList = remember {
+        mutableStateListOf<ExplorerItem>()
+    }
     val isMultiple = rememberSaveable { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -87,6 +91,7 @@ fun SAFScreen(
                 onFolderSelect,
                 onSend,
                 onCancel,
+                onInfo,
                 uploadProgress,
                 fileIndex,
                 totalSize,
@@ -131,6 +136,7 @@ private fun SAFContent(
     onFolderSelect: () -> Unit,
     onSend: () -> Unit,
     onCancel: () -> Unit,
+    onInfo: () -> Unit,
     uploadProgress: State<Double>,
     fileIndex: State<Int>,
     totalSize: State<Int>,
@@ -202,6 +208,7 @@ private fun SAFContent(
             }
             Button(
                 modifier = Modifier, onClick = {
+                    onInfo()
                     navHostController.navigate(Route.LOG)
                 }
             ) {

@@ -2,6 +2,7 @@ package com.rsupport.saftest.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -18,10 +19,11 @@ import com.rsupport.saftest.util.Util
 @Composable
 fun LogScreen(navHostController: NavHostController, log: State<String>) {
     val state = rememberScrollState()
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        Text(text = "전송 파일 정보", modifier = Modifier.padding(4.dp))
         Box(
             modifier = Modifier
                 .verticalScroll(state)

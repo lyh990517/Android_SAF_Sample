@@ -10,19 +10,20 @@ class JsonDebugTree(private val logCollector: MutableStateFlow<String>) : Timber
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         if (isJson(message)) {
             try {
+                logCollector.value += "___________________________file___________________________ + \n"
                 val json = JSONObject(message)
-                val formatted = json.toString(4) // 4 is the number of spaces to use for indentation
+                val formatted = json.toString(4)
                 logCollector.value += formatted
                 logCollector.value += "\n"
                 super.log(priority, tag, formatted, t)
                 return
             } catch (e: JSONException) {
-                // It's not a JSON object, try parsing it as an array
+
             }
 
             try {
                 val jsonArray = JSONArray(message)
-                val formatted = jsonArray.toString(4) // 4 is the number of spaces to use for indentation
+                val formatted = jsonArray.toString(4)
                 logCollector.value += formatted
                 logCollector.value += "\n"
                 super.log(priority, tag, formatted, t)

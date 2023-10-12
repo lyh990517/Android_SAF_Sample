@@ -52,10 +52,13 @@ class SAFViewModel : ViewModel() {
         fileIndex.value = 0
     }
 
+    fun showInfo() {
+        _fileList.value?.forEach { Timber.tag("ExplorerItem").e(it.toString()) }
+    }
+
     // 예제 함수
     fun sendFile(contentResolver: ContentResolver) {
         Timber.e("Selected File Count: " + _fileList.value?.size)
-        _fileList.value?.forEach { Timber.tag("ExplorerItem").e(it.toString()) }
         job = viewModelScope.launch{
             try {
                 uploaded.value = 0
