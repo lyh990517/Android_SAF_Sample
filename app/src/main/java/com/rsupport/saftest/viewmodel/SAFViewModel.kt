@@ -86,7 +86,6 @@ class SAFViewModel : ViewModel() {
                             }
                             Log.e("fileSend", "Complete $index")
                         }
-
                     }
                 }
                 fileIndex.value += 1 // 상태 변화를 통한 recompose 를 위함
@@ -97,11 +96,13 @@ class SAFViewModel : ViewModel() {
         }
     }
 
+    //최상위 폴더 바로 아래 요소만 보내도록함 depth 고정을 풀면 모든 파일을 보냄
     fun getFolderInfo(
         folderUri: Uri,
         context: Context,
         fileList: SnapshotStateList<ExplorerItem>,
-        depth: Int
+        depth: Int,
+        parent: MutableList<ExplorerItem> = mutableListOf()
     ) {
         _uiState.value = SAFState.Loading
         try {
@@ -109,21 +110,23 @@ class SAFViewModel : ViewModel() {
             when {
                 file != null && file.isDirectory -> {
                     val files = file.listFiles().map { ExplorerItem.create(it) }
-                    val folder = ExplorerItem.create(file) //download
-                    if (depth == 1) fileList.add(folder) // download
+                    val folder = ExplorerItem.create(file)
+                    if (depth == 1) fileList.add(folder)
                     files.forEachIndexed { _, childFile ->
-                        if (depth > 0) folder.subItems.add(childFile)
+                        if (depth == 1) folder.subItems.add(childFile)
+                        if (depth > 1) parent.add(childFile)
                         getFolderInfo(
                             childFile.path,
                             context,
                             fileList,
-                            depth + 1
+                            depth + 1,
+                            childFile.subItems
                         )
                     }
                 }
 
                 file != null && file.isFile -> {
-                    fileList.add(ExplorerItem.create(file))
+                    if (depth == 1) fileList.add(ExplorerItem.create(file))
                 }
 
                 depth == 0 -> _uiState.value = SAFState.Idle

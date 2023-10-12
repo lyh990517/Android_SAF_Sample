@@ -114,6 +114,8 @@ fun SAFScreen(
             val intent = Intent(ACTION_OPEN_DOCUMENT_TREE)
             launcher.launch(intent)
         }
+
+        else -> {}
     }
     BackHandler {
         onCancel()
