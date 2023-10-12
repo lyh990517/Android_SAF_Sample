@@ -63,7 +63,6 @@ fun SAFScreen(
         with(activityResult.data) {
             this?.clipData.let { data ->
                 val size = data?.itemCount
-                Log.e("folder","$size")
                 repeat(size ?: 0) { idx ->
                     data?.getItemAt(idx)?.uri?.let { uri ->
                         getFileInfo(uri, context, fileList)
@@ -72,7 +71,6 @@ fun SAFScreen(
 
             }
             this?.data?.let { file ->
-                Log.e("file","123")
                 getFolderInfo(file, context, fileList)
             }
         }

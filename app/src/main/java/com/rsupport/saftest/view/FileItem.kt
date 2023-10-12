@@ -1,5 +1,7 @@
 package com.rsupport.saftest.view
 
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,7 +42,7 @@ fun FileItem(
     currentFileIndex: State<Int>,
     onClick: (String) -> Unit
 ) {
-    val isUploaded = rememberSaveable { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -85,7 +88,8 @@ fun FileItem(
                     Text(text = "attribute: ${file.attribute}")
                     Text(text = "iconData: ${file.iconData}")
                     Text(text = "path: ${file.path}")
-                    if (index == currentFileIndex.value - 1){
+
+                    AnimatedVisibility(index == currentFileIndex.value - 1) {
                         Row {
                             Text(
                                 text = "upload this...",
@@ -94,9 +98,8 @@ fun FileItem(
                             )
                             CircularProgressIndicator()
                         }
-                        isUploaded.value = true
                     }
-                    if(index != currentFileIndex.value - 1 && isUploaded.value){
+                    AnimatedVisibility(index <= currentFileIndex.value - 1) {
                         Icon(imageVector = Icons.Filled.Check, contentDescription = "")
                     }
                 }
