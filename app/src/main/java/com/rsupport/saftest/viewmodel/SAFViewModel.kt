@@ -11,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.rsupport.saftest.state.SAFState
 import com.rsupport.saftest.model.ExplorerItem
 import com.rsupport.saftest.model.ItemType
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -26,6 +28,8 @@ class SAFViewModel : ViewModel() {
     val uploadProgress = MutableStateFlow(0.0)
     val fileIndex = MutableStateFlow(0)
 
+    private var job: Job? = null
+
     fun selectFile() {
         _uiState.value = SAFState.OnSAFFile
     }
@@ -38,49 +42,58 @@ class SAFViewModel : ViewModel() {
         _fileList.value = fileList.toList()
         _uiState.value = SAFState.Idle
     }
-
-    // 예제 함수
-    fun sendFile(contentResolver: ContentResolver) = viewModelScope.launch {
-        Log.e("fileSend", "Selected File Count: ${_fileList.value?.size}")
-        _fileList.value?.forEach { Log.e("ExplorerItem", it.toString()) }
+    fun cancel(){
+        job?.cancel()
         uploaded.value = 0
         uploadSize.value = 0
         uploadProgress.value = 0.0
-        try {
-            uploadSize.value =
-                _fileList.value?.filter { it.itemType == ItemType.File.value }
-                    ?.sumOf { it.size.toInt() }!!
-            Log.e("size", "${uploadSize.value}")
-            _fileList.value?.forEachIndexed { index, file ->
-                fileIndex.value = index + 1
-                contentResolver.openInputStream(file.path).use { stream ->
-                    stream?.let {
-                        Log.e("fileSend", "________________________________________")
-                        Log.e("fileSend", "Start $index")
-                        val buffer = ByteArray(1024 * 16)
-                        while (true) {
-                            delay(20)
-                            uploadProgress.value =
-                                (uploaded.value.toDouble() / uploadSize.value) * 100
-                            if (file.itemType == ItemType.Directory.value) {
-                                Log.e("fileSend", "is Directory")
-                                break
-                            }
-                            val readSize = stream.read(buffer)
-                            if (readSize < 0) break
-                            Log.e("fileSend", "${uploaded.value} byte / ${uploadSize.value} byte")
-                            // writePacket
-                            uploaded.value += readSize
-                        }
-                        Log.e("fileSend", "Complete $index")
-                    }
+        fileIndex.value = 0
+    }
 
+    // 예제 함수
+    fun sendFile(contentResolver: ContentResolver) {
+        Log.e("fileSend", "Selected File Count: ${_fileList.value?.size}")
+        _fileList.value?.forEach { Log.e("ExplorerItem", it.toString()) }
+        job = viewModelScope.launch{
+            try {
+                uploaded.value = 0
+                uploadSize.value = 0
+                uploadProgress.value = 0.0
+                fileIndex.value = 0
+                uploadSize.value =
+                    _fileList.value?.filter { it.itemType == ItemType.File.value }
+                        ?.sumOf { it.size.toInt() }!!
+                Log.e("size", "${uploadSize.value}")
+                _fileList.value?.forEachIndexed { index, file ->
+                    fileIndex.value = index + 1
+                    contentResolver.openInputStream(file.path).use { stream ->
+                        stream?.let {
+                            Log.e("fileSend", "________________________________________")
+                            Log.e("fileSend", "Start $index")
+                            val buffer = ByteArray(1024 * 16)
+                            while (true) {
+                                delay(20)
+                                uploadProgress.value =
+                                    (uploaded.value.toDouble() / uploadSize.value) * 100
+                                if (file.itemType == ItemType.Directory.value) {
+                                    Log.e("fileSend", "is Directory")
+                                    break
+                                }
+                                val readSize = stream.read(buffer)
+                                if (readSize < 0) break
+                                // writePacket
+                                uploaded.value += readSize
+                            }
+                            Log.e("fileSend", "Complete $index")
+                        }
+
+                    }
                 }
+                fileIndex.value += 1 // 상태 변화를 통한 recompose 를 위함
+                Log.e("upload", "${uploaded.value} ${uploadSize.value}")
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            fileIndex.value = 0 // 상태 변화를 통한 recompose 를 위함
-            Log.e("upload", "${uploaded.value} ${uploadSize.value}")
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 

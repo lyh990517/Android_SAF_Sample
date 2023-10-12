@@ -36,6 +36,7 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
                 onFolderSelect = { viewModel.selectFolder() },
                 onSet = { viewModel.setFileList(it) },
                 onSend = { viewModel.sendFile(context.contentResolver) },
+                onCancel = { viewModel.cancel() },
                 uploadProgress = viewModel.uploadProgress.collectAsState(),
                 fileIndex = viewModel.fileIndex.collectAsState(),
                 totalSize = viewModel.uploadSize.collectAsState(),

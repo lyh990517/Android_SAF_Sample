@@ -49,6 +49,7 @@ fun SAFScreen(
     onFolderSelect: () -> Unit,
     onSet: (SnapshotStateList<ExplorerItem>) -> Unit,
     onSend: () -> Unit,
+    onCancel: () -> Unit,
     uploadProgress: State<Double>,
     fileIndex: State<Int>,
     totalSize: State<Int>,
@@ -84,6 +85,7 @@ fun SAFScreen(
                 onFileSelect,
                 onFolderSelect,
                 onSend,
+                onCancel,
                 uploadProgress,
                 fileIndex,
                 totalSize,
@@ -114,6 +116,7 @@ fun SAFScreen(
         }
     }
     BackHandler {
+        onCancel()
         navHostController.popBackStack()
     }
 }
@@ -125,11 +128,13 @@ private fun SAFContent(
     onFileSelect: () -> Unit,
     onFolderSelect: () -> Unit,
     onSend: () -> Unit,
+    onCancel: () -> Unit,
     uploadProgress: State<Double>,
     fileIndex: State<Int>,
     totalSize: State<Int>,
     uploaded: State<Int>
 ) {
+    val isSending = rememberSaveable { mutableStateOf(false) }
     Column(Modifier.fillMaxSize()) {
         Row(
             Modifier.fillMaxWidth(),
@@ -138,21 +143,26 @@ private fun SAFContent(
         ) {
             Text(modifier = Modifier.padding(10.dp), text = "Selected Files")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "multi select")
+                Text(text = "파일 다중 선택")
                 Checkbox(
                     onCheckedChange = { isMultiple.value = !isMultiple.value },
                     checked = isMultiple.value
                 )
             }
         }
-        Text(text = "uploadProgress : ${uploadProgress.value} %", modifier = Modifier.padding(10.dp))
-        Text(text = "uploadSize : ${totalSize.value} / ${uploaded.value} byte", modifier = Modifier.padding(10.dp))
-        Text(text = "fileCount : ${fileList.size} / ${fileIndex.value}", modifier = Modifier.padding(10.dp))
+        Text(
+            text = "uploadProgress : ${uploadProgress.value} %",
+            modifier = Modifier.padding(10.dp)
+        )
+        Text(
+            text = "uploadSize : ${totalSize.value} / ${uploaded.value} byte",
+            modifier = Modifier.padding(10.dp)
+        )
         if (fileList.isNotEmpty()) {
             LazyColumn(Modifier.weight(1f)) {
                 itemsIndexed(fileList.toList()) { index, file ->
-                    FileItem(file,index,fileIndex) {
-                        Log.e("path", file.path.path ?: "")
+                    FileItem(file, index, fileIndex) { explorerItem ->
+                        fileList.remove(explorerItem)
                     }
                 }
             }
@@ -168,17 +178,20 @@ private fun SAFContent(
         Button(
             modifier = Modifier.fillMaxWidth(), onClick = onFileSelect
         ) {
-            Text(text = "open SAF Activity")
+            Text(text = "파일 선택")
         }
         Button(
             modifier = Modifier.fillMaxWidth(), onClick = onFolderSelect
         ) {
-            Text(text = "open SAF Activity for folder")
+            Text(text = "폴더 전체 선택")
         }
         Button(
-            modifier = Modifier.fillMaxWidth(), onClick = onSend
+            modifier = Modifier.fillMaxWidth(), onClick = {
+                if(!isSending.value) onSend() else onCancel()
+                isSending.value = !isSending.value
+            }
         ) {
-            Text(text = "send files")
+            Text(text = if(!isSending.value) "파일 보내기" else "취소")
         }
     }
 }

@@ -40,14 +40,14 @@ fun FileItem(
     file: ExplorerItem,
     index: Int,
     currentFileIndex: State<Int>,
-    onClick: (String) -> Unit
+    onClick: (ExplorerItem) -> Unit
 ) {
 
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .clickable { onClick(file.path.path ?: "") },
+            .clickable { onClick(file) },
         elevation = CardDefaults.cardElevation(10.dp),
         colors = CardDefaults.cardColors(Color.LightGray)
     ) {
