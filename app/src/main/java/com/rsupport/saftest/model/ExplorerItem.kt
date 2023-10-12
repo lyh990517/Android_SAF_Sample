@@ -12,7 +12,7 @@ data class ExplorerItem(
     val modifyDate: Long,
     val attribute: Int,
     val iconData: String,
-    val subItems: List<ExplorerItem>
+    val subItems: MutableList<ExplorerItem>
 ) {
     companion object {
         fun create(file: DocumentFile) =
@@ -28,29 +28,31 @@ data class ExplorerItem(
                     else -> ItemType.Dot.value
                 },
                 size = file.length(),
-                subItems = emptyList() // ??
+                subItems = mutableListOf() // ??
             )
 
     }
 
     override fun toString(): String {
+        val subItemStrings = subItems.joinToString(", ") { it.toString() }
+
         return """
-            ExplorerItem {
-                path: $path,
-                displayName: $displayName,
-                attribute: $attribute,
-                iconData: $iconData,
-                modifyDate: epochTime ${StringUtil.formatEpochTime(modifyDate)},
-                itemType: ${
+        ExplorerItem {
+            path: $path,
+            displayName: $displayName,
+            attribute: $attribute,
+            iconData: $iconData,
+            modifyDate: epochTime ${StringUtil.formatEpochTime(modifyDate)},
+            itemType: ${
             when (itemType) {
                 1 -> ItemType.Directory
                 2 -> ItemType.File
                 else -> ItemType.Dot
             }
         },
-                size: $size Byte,
-                subItems: $subItems
-            }
-        """.trimIndent()
+            size: $size Byte,
+            subItems: [$subItemStrings]
+        }
+    """.trimIndent()
     }
 }

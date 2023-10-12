@@ -26,7 +26,12 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
                 navHostController,
                 viewModel.uiState.collectAsState(),
                 getFileInfo = { uri, context, explorerItems -> viewModel.getFileInfo(uri, context, explorerItems) },
-                getFolderInfo = { uri, context, explorerItems -> viewModel.getFolderInfo(uri, context, explorerItems, 0) },
+                getFolderInfo = { uri, context, explorerItems -> viewModel.getFolderInfo(
+                    uri,
+                    context,
+                    explorerItems,
+                    0
+                ) },
                 onFileSelect = { viewModel.selectFile() },
                 onFolderSelect = { viewModel.selectFolder() },
                 onSet = { viewModel.setFileList(it) },

@@ -3,7 +3,6 @@ package com.rsupport.saftest.viewmodel
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.documentfile.provider.DocumentFile
@@ -15,7 +14,6 @@ import com.rsupport.saftest.model.ItemType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.io.FileNotFoundException
 
 class SAFViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<SAFState>(SAFState.Idle)
@@ -44,6 +42,7 @@ class SAFViewModel : ViewModel() {
     // 예제 함수
     fun sendFile(contentResolver: ContentResolver) = viewModelScope.launch {
         Log.e("fileSend", "Selected File Count: ${_fileList.value?.size}")
+        _fileList.value?.forEach { Log.e("ExplorerItem", it.toString()) }
         uploaded.value = 0
         uploadSize.value = 0
         uploadProgress.value = 0.0
@@ -96,18 +95,22 @@ class SAFViewModel : ViewModel() {
             val file: DocumentFile? = DocumentFile.fromTreeUri(context, folderUri)
             when {
                 file != null && file.isDirectory -> {
-                    Log.e("ExplorerItem", ExplorerItem.create(file).toString())
-                    val files: Array<DocumentFile> = file.listFiles()
-                    fileList.add(ExplorerItem.create(file))
-                    for (childFile in files) {
-                        Log.e("add", "add1")
-                        getFolderInfo(childFile.uri, context, fileList, depth + 1)
+                    val files = file.listFiles().map { ExplorerItem.create(it) }
+                    val folder = ExplorerItem.create(file) //download
+                    if (depth == 1) fileList.add(folder) // download
+                    files.forEachIndexed { _, childFile ->
+                        if (depth > 0) folder.subItems.add(childFile)
+                        getFolderInfo(
+                            childFile.path,
+                            context,
+                            fileList,
+                            depth + 1
+                        )
                     }
                 }
 
                 file != null && file.isFile -> {
                     fileList.add(ExplorerItem.create(file))
-                    Log.e("add", "add2")
                 }
 
                 depth == 0 -> _uiState.value = SAFState.Idle
@@ -127,9 +130,7 @@ class SAFViewModel : ViewModel() {
         try {
             val file: DocumentFile? = DocumentFile.fromSingleUri(context, folderUri)
             if (file != null && file.isFile) {
-                Log.e("ExplorerItem", ExplorerItem.create(file).toString())
                 fileList.add(ExplorerItem.create(file))
-                Log.e("add", "add3")
             }
             _uiState.value = SAFState.Idle
         } catch (e: RuntimeException) {
