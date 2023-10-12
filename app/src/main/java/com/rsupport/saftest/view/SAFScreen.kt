@@ -5,10 +5,10 @@ import android.content.Intent
 import android.content.Intent.ACTION_OPEN_DOCUMENT
 import android.content.Intent.ACTION_OPEN_DOCUMENT_TREE
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,8 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.rsupport.saftest.state.SAFState
 import com.rsupport.saftest.model.ExplorerItem
+import com.rsupport.saftest.model.Route
 
 @Composable
 fun SAFScreen(
@@ -53,7 +54,7 @@ fun SAFScreen(
     uploadProgress: State<Double>,
     fileIndex: State<Int>,
     totalSize: State<Int>,
-    uploaded: State<Int>
+    uploaded: State<Int>,
 ) {
     val context = LocalContext.current
     val fileList = remember { mutableStateListOf<ExplorerItem>() }
@@ -89,7 +90,8 @@ fun SAFScreen(
                 uploadProgress,
                 fileIndex,
                 totalSize,
-                uploaded
+                uploaded,
+                navHostController
             )
         }
 
@@ -114,8 +116,6 @@ fun SAFScreen(
             val intent = Intent(ACTION_OPEN_DOCUMENT_TREE)
             launcher.launch(intent)
         }
-
-        else -> {}
     }
     BackHandler {
         onCancel()
@@ -134,7 +134,8 @@ private fun SAFContent(
     uploadProgress: State<Double>,
     fileIndex: State<Int>,
     totalSize: State<Int>,
-    uploaded: State<Int>
+    uploaded: State<Int>,
+    navHostController: NavHostController
 ) {
     val isSending = rememberSaveable { mutableStateOf(false) }
     Column(Modifier.fillMaxSize()) {
@@ -161,7 +162,7 @@ private fun SAFContent(
             modifier = Modifier.padding(10.dp)
         )
         if (fileList.isNotEmpty()) {
-            LazyColumn(Modifier.weight(1f)) {
+            LazyColumn(Modifier.weight(6f)) {
                 itemsIndexed(fileList.toList()) { index, file ->
                     FileItem(file, index, fileIndex) { explorerItem ->
                         fileList.remove(explorerItem)
@@ -171,29 +172,41 @@ private fun SAFContent(
         } else {
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(6f)
                     .fillMaxWidth()
             ) {
                 Text(text = "Empty", Modifier.align(Alignment.Center))
             }
         }
-        Button(
-            modifier = Modifier.fillMaxWidth(), onClick = onFileSelect
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "파일 선택")
-        }
-        Button(
-            modifier = Modifier.fillMaxWidth(), onClick = onFolderSelect
-        ) {
-            Text(text = "폴더 전체 선택")
-        }
-        Button(
-            modifier = Modifier.fillMaxWidth(), onClick = {
-                if(!isSending.value) onSend() else onCancel()
-                isSending.value = !isSending.value
+            Button(
+                modifier = Modifier, onClick = onFileSelect
+            ) {
+                Text(text = "파일 선택")
             }
-        ) {
-            Text(text = if(!isSending.value) "파일 보내기" else "취소")
+            Button(
+                modifier = Modifier, onClick = onFolderSelect
+            ) {
+                Text(text = "폴더 전체 선택")
+            }
+            Button(
+                modifier = Modifier, onClick = {
+                    if (!isSending.value) onSend() else onCancel()
+                    isSending.value = !isSending.value
+                }
+            ) {
+                Text(text = if (!isSending.value) "파일 보내기" else "취소")
+            }
+            Button(
+                modifier = Modifier, onClick = {
+                    navHostController.navigate(Route.LOG)
+                }
+            ) {
+                Text("로그 보기")
+            }
         }
     }
 }

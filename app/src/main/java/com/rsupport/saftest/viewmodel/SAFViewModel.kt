@@ -45,6 +45,7 @@ class SAFViewModel : ViewModel() {
     }
     fun cancel(){
         job?.cancel()
+        _fileList.value = null
         uploaded.value = 0
         uploadSize.value = 0
         uploadProgress.value = 0.0

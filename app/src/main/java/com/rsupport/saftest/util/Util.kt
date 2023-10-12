@@ -2,10 +2,12 @@ package com.rsupport.saftest.util
 
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 
 object Util {
+    val logCollector = MutableStateFlow("")
     fun checkFileIconType(file: DocumentFile): String {
         val fileName = file.name ?: ""
         return when {
@@ -42,10 +44,10 @@ object Util {
     fun checkAttributes(file: DocumentFile): Int {
         var result = 0
         if (file.canWrite()) {
-            result += 0x14
+            result += 14
         }
         if (file.canRead()) {
-            result += 0x1
+            result += 1
         }
         return result
     }

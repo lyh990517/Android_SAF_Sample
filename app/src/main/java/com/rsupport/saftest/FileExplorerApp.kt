@@ -8,6 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rsupport.saftest.model.Route
+import com.rsupport.saftest.util.Util
+import com.rsupport.saftest.view.LogScreen
 import com.rsupport.saftest.view.SAFScreen
 import com.rsupport.saftest.viewmodel.SAFViewModel
 
@@ -20,18 +22,28 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
         navController = navHostController,
         startDestination = Route.SAF_EXPLORER
     ) {
-
+        composable(Route.LOG) {
+            LogScreen(navHostController, log = Util.logCollector.collectAsState())
+        }
         composable(Route.SAF_EXPLORER) {
             SAFScreen(
                 navHostController,
                 viewModel.uiState.collectAsState(),
-                getFileInfo = { uri, context, explorerItems -> viewModel.getFileInfo(uri, context, explorerItems) },
-                getFolderInfo = { uri, context, explorerItems -> viewModel.getFolderInfo(
-                    uri,
-                    context,
-                    explorerItems,
-                    0
-                ) },
+                getFileInfo = { uri, context, explorerItems ->
+                    viewModel.getFileInfo(
+                        uri,
+                        context,
+                        explorerItems
+                    )
+                },
+                getFolderInfo = { uri, context, explorerItems ->
+                    viewModel.getFolderInfo(
+                        uri,
+                        context,
+                        explorerItems,
+                        0
+                    )
+                },
                 onFileSelect = { viewModel.selectFile() },
                 onFolderSelect = { viewModel.selectFolder() },
                 onSet = { viewModel.setFileList(it) },
@@ -40,7 +52,7 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
                 uploadProgress = viewModel.uploadProgress.collectAsState(),
                 fileIndex = viewModel.fileIndex.collectAsState(),
                 totalSize = viewModel.uploadSize.collectAsState(),
-                uploaded = viewModel.uploaded.collectAsState()
+                uploaded = viewModel.uploaded.collectAsState(),
             )
         }
     }

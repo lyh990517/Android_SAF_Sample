@@ -1,9 +1,7 @@
 package com.rsupport.saftest.model
 
 object Route {
-    val HOME = "home"
-    val REQUEST_PERMISSION = "permission"
-    val EXPLORER = "explorer"
+    val LOG = "log"
     val SAF_EXPLORER = "saf explorer"
-    val MEDIASTORE_EXPLORER = "media store explorer"
+
 }

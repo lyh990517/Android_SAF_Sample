@@ -11,14 +11,13 @@ import androidx.compose.ui.Modifier
 import com.rsupport.saftest.util.Constants.HOME_DIR
 import com.rsupport.saftest.ui.theme.SaftestTheme
 import com.rsupport.saftest.util.JsonDebugTree
+import com.rsupport.saftest.util.Util
 import timber.log.Timber
-import java.io.File
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.e("dir",HOME_DIR)
-        Timber.plant(JsonDebugTree())
+        Timber.plant(JsonDebugTree(Util.logCollector))
         setContent {
             SaftestTheme {
                 // A surface container using the 'background' color from the theme
