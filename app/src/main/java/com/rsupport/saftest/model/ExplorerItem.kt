@@ -2,7 +2,7 @@ package com.rsupport.saftest.model
 
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
-import com.rsupport.saftest.util.StringUtil
+import com.rsupport.saftest.util.Util
 
 data class ExplorerItem(
     val path: Uri,
@@ -19,8 +19,8 @@ data class ExplorerItem(
             ExplorerItem(
                 path = file.uri,
                 displayName = file.uri.pathSegments.last(),
-                attribute = -1, // ??
-                iconData = "temp", // ??
+                attribute = Util.checkAttributes(file), // ??
+                iconData = Util.checkFileIconType(file), // ??
                 modifyDate = file.lastModified(),
                 itemType = when {
                     file.isDirectory -> ItemType.Directory.value
@@ -28,31 +28,33 @@ data class ExplorerItem(
                     else -> ItemType.Dot.value
                 },
                 size = file.length(),
-                subItems = mutableListOf() // ??
+                subItems = mutableListOf()
             )
 
     }
 
     override fun toString(): String {
-        val subItemStrings = subItems.joinToString(", ") { it.toString() }
+        val subItemStrings = subItems.joinToString(",\n") { it.toString() }
 
         return """
-        ExplorerItem {
-            path: $path,
-            displayName: $displayName,
-            attribute: $attribute,
-            iconData: $iconData,
-            modifyDate: epochTime ${StringUtil.formatEpochTime(modifyDate)},
-            itemType: ${
+    {
+        "path": "$path",
+        "displayName": "$displayName",
+        "attribute": "$attribute",
+        "iconData": "$iconData Icon",
+        "modifyDate": "epochTime ${Util.formatEpochTime(modifyDate)}",
+        "itemType": ${
             when (itemType) {
-                1 -> ItemType.Directory
-                2 -> ItemType.File
-                else -> ItemType.Dot
+                1 -> "\"${ItemType.Directory}\""
+                2 -> "\"${ItemType.File}\""
+                else -> "\"${ItemType.Dot}\""
             }
         },
-            size: $size Byte,
-            subItems: [$subItemStrings]
-        }
+        "size": "$size Byte",
+        "subItems": [
+            $subItemStrings
+        ]
+    }
     """.trimIndent()
     }
 }

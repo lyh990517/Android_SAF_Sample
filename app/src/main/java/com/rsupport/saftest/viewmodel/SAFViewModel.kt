@@ -16,6 +16,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class SAFViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<SAFState>(SAFState.Idle)
@@ -52,8 +53,8 @@ class SAFViewModel : ViewModel() {
 
     // 예제 함수
     fun sendFile(contentResolver: ContentResolver) {
-        Log.e("fileSend", "Selected File Count: ${_fileList.value?.size}")
-        _fileList.value?.forEach { Log.e("ExplorerItem", it.toString()) }
+        Timber.e("Selected File Count: " + _fileList.value?.size)
+        _fileList.value?.forEach { Timber.tag("ExplorerItem").e(it.toString()) }
         job = viewModelScope.launch{
             try {
                 uploaded.value = 0
@@ -63,20 +64,19 @@ class SAFViewModel : ViewModel() {
                 uploadSize.value =
                     _fileList.value?.filter { it.itemType == ItemType.File.value }
                         ?.sumOf { it.size.toInt() }!!
-                Log.e("size", "${uploadSize.value}")
                 _fileList.value?.forEachIndexed { index, file ->
                     fileIndex.value = index + 1
                     contentResolver.openInputStream(file.path).use { stream ->
                         stream?.let {
-                            Log.e("fileSend", "________________________________________")
-                            Log.e("fileSend", "Start $index")
+                            Timber.e("________________________________________")
+                            Timber.e("Start $index")
                             val buffer = ByteArray(1024 * 16)
                             while (true) {
                                 delay(20)
                                 uploadProgress.value =
                                     (uploaded.value.toDouble() / uploadSize.value) * 100
                                 if (file.itemType == ItemType.Directory.value) {
-                                    Log.e("fileSend", "is Directory")
+                                    Timber.tag("fileSend").e("is Directory")
                                     break
                                 }
                                 val readSize = stream.read(buffer)
@@ -84,12 +84,11 @@ class SAFViewModel : ViewModel() {
                                 // writePacket
                                 uploaded.value += readSize
                             }
-                            Log.e("fileSend", "Complete $index")
+                            Timber.tag("fileSend").e("Complete %s", index)
                         }
                     }
                 }
                 fileIndex.value += 1 // 상태 변화를 통한 recompose 를 위함
-                Log.e("upload", "${uploaded.value} ${uploadSize.value}")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -100,7 +99,7 @@ class SAFViewModel : ViewModel() {
     fun getFolderInfo(
         folderUri: Uri,
         context: Context,
-        fileList: SnapshotStateList<ExplorerItem>,
+        fileList: SnapshotStateList<ExplorerItem>, // ui에 보여줄 파일 목록
         depth: Int,
         parent: MutableList<ExplorerItem> = mutableListOf()
     ) {
