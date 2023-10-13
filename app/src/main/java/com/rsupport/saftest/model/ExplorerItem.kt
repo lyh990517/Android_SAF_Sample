@@ -41,7 +41,7 @@ data class ExplorerItem(
         "path": "$path",
         "displayName": "$displayName",
         "attribute": "$attribute",
-        "iconData": "$iconData Icon",
+        "iconData": "${iconData.take(200)}",
         "modifyDate": "epochTime ${Util.formatEpochTime(modifyDate)}",
         "itemType": ${
             when (itemType) {
