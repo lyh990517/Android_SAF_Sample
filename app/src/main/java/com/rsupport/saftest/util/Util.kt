@@ -17,7 +17,7 @@ object Util {
     val logCollector = MutableStateFlow("")
 
     //일단 한가지 아이콘으로 통일
-    suspend fun checkFileIconType(file: DocumentFile): String {
+    suspend fun checkFileIconType(file: DocumentFile,encoding: Boolean): String {
         val fileName = file.name ?: ""
         val icon = when {
             fileName.endsWith(".txt", ignoreCase = true) -> R.drawable.file
@@ -48,7 +48,7 @@ object Util {
             fileName.endsWith(".csv", ignoreCase = true) -> R.drawable.file
             else -> R.drawable.folder
         }
-        return drawableToBase64String(icon)
+        return if(encoding) drawableToBase64String(icon) else ""
     }
 
     fun checkAttributes(file: DocumentFile): Int {

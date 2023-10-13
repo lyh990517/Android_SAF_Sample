@@ -32,11 +32,11 @@ class SAFViewModel : ViewModel() {
 
     private var job: Job? = null
 
-    fun changeState(state: SAFState){
+    fun changeState(state: SAFState) {
         _uiState.value = state
     }
 
-    fun cancel(){
+    fun cancel() {
         job?.cancel()
         uploaded.value = 0
         uploadSize.value = 0
@@ -55,7 +55,7 @@ class SAFViewModel : ViewModel() {
     // 예제 함수
     fun sendFile(contentResolver: ContentResolver) {
         Timber.e("Selected File Count: " + fileList.size)
-        job = viewModelScope.launch{
+        job = viewModelScope.launch {
             try {
                 uploaded.value = 0
                 uploadSize.value = 0
@@ -108,8 +108,8 @@ class SAFViewModel : ViewModel() {
                 val file: DocumentFile? = DocumentFile.fromTreeUri(context, folderUri)
                 when {
                     file != null && file.isDirectory -> {
-                        val files = file.listFiles().map { ExplorerItem.create(it) }
-                        val folder = ExplorerItem.create(file)
+                        val files = file.listFiles().map { ExplorerItem.create(it, false) }
+                        val folder = ExplorerItem.create(file, false)
                         if (depth == 1) fileList.add(folder)
                         files.forEachIndexed { _, childFile ->
                             if (depth == 1) folder.subItems.add(childFile)
@@ -125,10 +125,12 @@ class SAFViewModel : ViewModel() {
                     }
 
                     file != null && file.isFile -> {
-                        if (depth == 1) fileList.add(ExplorerItem.create(file))
+                        if (depth == 1) fileList.add(ExplorerItem.create(file, true))
                     }
                 }
-                if(depth == 0){ _uiState.value = SAFState.Idle }
+                if (depth == 0) {
+                    _uiState.value = SAFState.Idle
+                }
             }
         } catch (e: RuntimeException) {
             getFileInfo(folderUri, context, fileList)
@@ -145,8 +147,9 @@ class SAFViewModel : ViewModel() {
             try {
                 val file: DocumentFile? = DocumentFile.fromSingleUri(context, folderUri)
                 if (file != null && file.isFile) {
-                    fileList.add(ExplorerItem.create(file))
+                    fileList.add(ExplorerItem.create(file, true))
                 }
+                _uiState.value = SAFState.Idle
             } catch (e: RuntimeException) {
                 e.printStackTrace()
             }

@@ -15,12 +15,12 @@ data class ExplorerItem(
     val subItems: MutableList<ExplorerItem>
 ) {
     companion object {
-        suspend fun create(file: DocumentFile) =
+        suspend fun create(file: DocumentFile,encoding: Boolean) =
             ExplorerItem(
                 path = file.uri,
                 displayName = file.uri.pathSegments.last(),
                 attribute = Util.checkAttributes(file), // ??
-                iconData = Util.checkFileIconType(file), // ??
+                iconData = Util.checkFileIconType(file,encoding), // ??
                 modifyDate = file.lastModified(),
                 itemType = when {
                     file.isDirectory -> ItemType.Directory.value
