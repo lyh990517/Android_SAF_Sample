@@ -70,7 +70,11 @@ fun SAFScreen(
 
             }
             this?.data?.let { file ->
-                getFolderInfo(file, context, fileList)
+                try {
+                    getFolderInfo(file, context, fileList)
+                } catch (e: Exception) {
+                    getFileInfo(file, context, fileList)
+                }
             }
         }
     }

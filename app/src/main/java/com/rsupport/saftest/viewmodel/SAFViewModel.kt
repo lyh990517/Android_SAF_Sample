@@ -105,34 +105,39 @@ class SAFViewModel : ViewModel() {
     ) {
         try {
             viewModelScope.launch(Dispatchers.Default) {
-                val file: DocumentFile? = DocumentFile.fromTreeUri(context, folderUri)
-                when {
-                    file != null && file.isDirectory -> {
-                        val files = file.listFiles().map { ExplorerItem.create(it, false) }
-                        val folder = ExplorerItem.create(file, false)
-                        if (depth == 1) fileList.add(folder)
-                        files.forEachIndexed { _, childFile ->
-                            if (depth == 1) folder.subItems.add(childFile)
-                            if (depth > 1) parent.add(childFile)
-                            getFolderInfo(
-                                childFile.path,
-                                context,
-                                fileList,
-                                depth + 1,
-                                childFile.subItems
-                            )
+                try {
+                    val file: DocumentFile? = DocumentFile.fromTreeUri(context, folderUri)
+                    when {
+                        file != null && file.isDirectory -> {
+                            val files = file.listFiles().map { ExplorerItem.create(it, false) }
+                            val folder = ExplorerItem.create(file, false)
+                            if (depth == 1) fileList.add(folder)
+                            files.forEachIndexed { _, childFile ->
+                                if (depth == 1) folder.subItems.add(childFile)
+                                if (depth > 1) parent.add(childFile)
+                                getFolderInfo(
+                                    childFile.path,
+                                    context,
+                                    fileList,
+                                    depth + 1,
+                                    childFile.subItems
+                                )
+                            }
+                        }
+
+                        file != null && file.isFile -> {
+                            if (depth == 1) fileList.add(ExplorerItem.create(file, true))
                         }
                     }
-
-                    file != null && file.isFile -> {
-                        if (depth == 1) fileList.add(ExplorerItem.create(file, true))
-                    }
+                }catch (e: Exception){
+                    getFileInfo(folderUri, context, fileList)
+                    e.printStackTrace()
                 }
                 if (depth == 0) {
                     _uiState.value = SAFState.Idle
                 }
             }
-        } catch (e: RuntimeException) {
+        } catch (e: Exception) {
             getFileInfo(folderUri, context, fileList)
             e.printStackTrace()
         }
