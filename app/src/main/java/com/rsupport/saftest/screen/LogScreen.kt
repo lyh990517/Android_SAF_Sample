@@ -1,4 +1,4 @@
-package com.rsupport.saftest.view
+package com.rsupport.saftest.screen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box

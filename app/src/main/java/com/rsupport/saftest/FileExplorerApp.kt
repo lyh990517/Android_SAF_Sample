@@ -11,8 +11,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rsupport.saftest.model.Route
 import com.rsupport.saftest.util.Util
-import com.rsupport.saftest.view.LogScreen
-import com.rsupport.saftest.view.SAFScreen
+import com.rsupport.saftest.screen.LogScreen
+import com.rsupport.saftest.screen.SAFScreen
 import com.rsupport.saftest.viewmodel.SAFViewModel
 
 @Composable

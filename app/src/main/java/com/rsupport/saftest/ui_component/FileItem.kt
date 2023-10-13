@@ -1,4 +1,4 @@
-package com.rsupport.saftest.view
+package com.rsupport.saftest.ui_component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
@@ -20,10 +21,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rsupport.saftest.R
@@ -47,7 +51,7 @@ fun FileItem(
         elevation = CardDefaults.cardElevation(10.dp),
         colors = CardDefaults.cardColors(Color.LightGray)
     ) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.wrapContentSize()) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Image(
                     modifier = Modifier
@@ -102,4 +106,17 @@ fun FileItem(
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun FileItemPreview() {
+    val index = 0
+    val currentFileIndex = remember { mutableStateOf(0) } // Assuming 1 is the current file index
+    FileItem(
+        file = dummyItem1,
+        index = index,
+        currentFileIndex = currentFileIndex
+    ) { /* onClick function if needed */ }
+
 }
