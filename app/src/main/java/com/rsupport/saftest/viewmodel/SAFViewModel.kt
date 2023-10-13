@@ -37,7 +37,6 @@ class SAFViewModel : ViewModel() {
 
     fun cancel(){
         job?.cancel()
-        fileList.clear()
         uploaded.value = 0
         uploadSize.value = 0
         uploadProgress.value = 0.0
@@ -46,6 +45,10 @@ class SAFViewModel : ViewModel() {
 
     fun showInfo() {
         fileList.forEach { Timber.tag("ExplorerItem").e(it.toString()) }
+    }
+
+    fun deleteFileList() {
+        fileList.clear()
     }
 
     // 예제 함수
@@ -99,7 +102,6 @@ class SAFViewModel : ViewModel() {
         depth: Int,
         parent: MutableList<ExplorerItem> = mutableListOf()
     ) {
-        _uiState.value = SAFState.Loading
         try {
             val file: DocumentFile? = DocumentFile.fromTreeUri(context, folderUri)
             when {
@@ -123,8 +125,6 @@ class SAFViewModel : ViewModel() {
                 file != null && file.isFile -> {
                     if (depth == 1) fileList.add(ExplorerItem.create(file))
                 }
-
-                depth == 0 -> _uiState.value = SAFState.Idle
             }
         } catch (e: RuntimeException) {
             getFileInfo(folderUri, context, fileList)
@@ -137,13 +137,11 @@ class SAFViewModel : ViewModel() {
         context: Context,
         fileList: SnapshotStateList<ExplorerItem>
     ) {
-        _uiState.value = SAFState.Loading
         try {
             val file: DocumentFile? = DocumentFile.fromSingleUri(context, folderUri)
             if (file != null && file.isFile) {
                 fileList.add(ExplorerItem.create(file))
             }
-            _uiState.value = SAFState.Idle
         } catch (e: RuntimeException) {
             e.printStackTrace()
         }

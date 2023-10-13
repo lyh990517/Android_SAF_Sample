@@ -25,6 +25,7 @@ fun ButtonMenuView(
     onSend: () -> Unit,
     onCancel: () -> Unit,
     onInfo: () -> Unit,
+    onDelete: () -> Unit,
     navHostController: NavHostController
 ) {
     Row(
@@ -37,6 +38,11 @@ fun ButtonMenuView(
             }
         ) {
             Text(text = "파일 선택")
+        }
+        Button(
+            modifier = Modifier, onClick = onDelete
+        ) {
+            Text(text = "전체 삭제")
         }
         Button(
             modifier = Modifier, onClick = {
@@ -73,6 +79,7 @@ fun ButtonMenuViewPreview() {
         onSend = {},
         onCancel = {},
         onInfo = {},
+        onDelete = {},
         navHostController = rememberNavController()
     )
 }

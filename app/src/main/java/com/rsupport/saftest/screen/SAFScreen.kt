@@ -19,6 +19,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -35,6 +36,9 @@ import com.rsupport.saftest.ui_component.FileListView
 import com.rsupport.saftest.ui_component.StatusView
 import com.rsupport.saftest.ui_component.dummyItem1
 import com.rsupport.saftest.ui_component.dummyItem2
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SAFScreen(
@@ -46,6 +50,7 @@ fun SAFScreen(
     onSend: () -> Unit,
     onCancel: () -> Unit,
     onInfo: () -> Unit,
+    onDelete: () -> Unit,
     fileList: SnapshotStateList<ExplorerItem>,
     uploadProgress: State<Double>,
     fileIndex: State<Int>,
@@ -54,24 +59,30 @@ fun SAFScreen(
 ) {
     val context = LocalContext.current
     val isMultiple = rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { activityResult ->
-        with(activityResult.data) {
-            this?.clipData.let { data ->
-                val size = data?.itemCount
-                repeat(size ?: 0) { idx ->
-                    data?.getItemAt(idx)?.uri?.let { uri ->
-                        getFileInfo(uri, context, fileList)
+        scope.launch {
+            onChangeState(SAFState.Loading)
+            withContext(Dispatchers.Default){
+                with(activityResult.data) {
+                    this?.clipData.let { data ->
+                        val size = data?.itemCount
+                        repeat(size ?: 0) { idx ->
+                            data?.getItemAt(idx)?.uri?.let { uri ->
+                                getFileInfo(uri, context, fileList)
+                            }
+                        }
+
+                    }
+                    this?.data?.let { file ->
+                        getFolderInfo(file, context, fileList)
                     }
                 }
-
             }
-            this?.data?.let { file ->
-                getFolderInfo(file, context, fileList)
-            }
+            onChangeState(SAFState.Idle)
         }
-        onChangeState(SAFState.Idle)
     }
     when (uiState.value) {
         SAFState.Idle -> {
@@ -82,6 +93,7 @@ fun SAFScreen(
                 onSend,
                 onCancel,
                 onInfo,
+                onDelete,
                 uploadProgress,
                 fileIndex,
                 totalSize,
@@ -97,7 +109,6 @@ fun SAFScreen(
         }
 
         SAFState.OnSAFFile -> {
-            fileList.clear()
             val intent = Intent(ACTION_OPEN_DOCUMENT)
             intent.type = "*/*"
             if (isMultiple.value) {
@@ -107,7 +118,6 @@ fun SAFScreen(
         }
 
         SAFState.OnSAFFolder -> {
-            fileList.clear()
             val intent = Intent(ACTION_OPEN_DOCUMENT_TREE)
             launcher.launch(intent)
         }
@@ -126,6 +136,7 @@ fun SAFContent(
     onSend: () -> Unit,
     onCancel: () -> Unit,
     onInfo: () -> Unit,
+    onDelete: () -> Unit,
     uploadProgress: State<Double>,
     fileIndex: State<Int>,
     totalSize: State<Int>,
@@ -146,6 +157,7 @@ fun SAFContent(
             onSend,
             onCancel,
             onInfo,
+            onDelete,
             navHostController
         )
     }
@@ -163,6 +175,7 @@ fun SAFScreenPreview() {
         onSend = { },
         onCancel = { },
         onInfo = { },
+        onDelete = { },
         fileList = remember { mutableStateListOf(dummyItem1, dummyItem2) },
         uploadProgress = remember { mutableStateOf(50.0) },
         fileIndex = remember { mutableStateOf(0) },
