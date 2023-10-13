@@ -2,6 +2,8 @@ package com.rsupport.saftest
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -50,6 +52,7 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
                 onSend = { viewModel.sendFile(context.contentResolver) },
                 onCancel = { viewModel.cancel() },
                 onInfo = { viewModel.showInfo()},
+                fileList = viewModel.fileList.value ?: remember { mutableStateListOf() },
                 uploadProgress = viewModel.uploadProgress.collectAsState(),
                 fileIndex = viewModel.fileIndex.collectAsState(),
                 totalSize = viewModel.uploadSize.collectAsState(),

@@ -3,7 +3,6 @@ package com.rsupport.saftest.viewmodel
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
@@ -12,7 +11,6 @@ import com.rsupport.saftest.state.SAFState
 import com.rsupport.saftest.model.ExplorerItem
 import com.rsupport.saftest.model.ItemType
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -22,10 +20,9 @@ class SAFViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<SAFState>(SAFState.Idle)
     val uiState = _uiState
 
-    private val _fileList = MutableStateFlow<List<ExplorerItem>?>(null)
+    val fileList = MutableStateFlow<SnapshotStateList<ExplorerItem>?>(null)
     val uploadSize = MutableStateFlow(0)
     val uploaded = MutableStateFlow(0)
-
     val uploadProgress = MutableStateFlow(0.0)
     val fileIndex = MutableStateFlow(0)
 
@@ -40,12 +37,12 @@ class SAFViewModel : ViewModel() {
     }
 
     fun setFileList(fileList: SnapshotStateList<ExplorerItem>) {
-        _fileList.value = fileList.toList()
+        this.fileList.value = fileList
         _uiState.value = SAFState.Idle
     }
     fun cancel(){
         job?.cancel()
-        _fileList.value = null
+        fileList.value = null
         uploaded.value = 0
         uploadSize.value = 0
         uploadProgress.value = 0.0
@@ -53,12 +50,12 @@ class SAFViewModel : ViewModel() {
     }
 
     fun showInfo() {
-        _fileList.value?.forEach { Timber.tag("ExplorerItem").e(it.toString()) }
+        fileList.value?.forEach { Timber.tag("ExplorerItem").e(it.toString()) }
     }
 
     // 예제 함수
     fun sendFile(contentResolver: ContentResolver) {
-        Timber.e("Selected File Count: " + _fileList.value?.size)
+        Timber.e("Selected File Count: " + fileList.value?.size)
         job = viewModelScope.launch{
             try {
                 uploaded.value = 0
@@ -66,9 +63,9 @@ class SAFViewModel : ViewModel() {
                 uploadProgress.value = 0.0
                 fileIndex.value = 0
                 uploadSize.value =
-                    _fileList.value?.filter { it.itemType == ItemType.File.value }
+                    fileList.value?.filter { it.itemType == ItemType.File.value }
                         ?.sumOf { it.size.toInt() }!!
-                _fileList.value?.forEachIndexed { index, file ->
+                fileList.value?.forEachIndexed { index, file ->
                     fileIndex.value = index + 1
                     contentResolver.openInputStream(file.path).use { stream ->
                         stream?.let {
