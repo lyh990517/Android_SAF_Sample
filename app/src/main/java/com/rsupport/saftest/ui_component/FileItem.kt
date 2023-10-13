@@ -85,7 +85,7 @@ fun FileItem(
                         }"
                     )
                     Text(text = "attribute: ${file.attribute}")
-                    Text(text = "iconData: ${file.iconData}")
+                    Text(text = "iconData: ${file.iconData.take(200)}...")
                     Text(text = "path: ${file.path}")
 
                     AnimatedVisibility(index == currentFileIndex.value - 1) {

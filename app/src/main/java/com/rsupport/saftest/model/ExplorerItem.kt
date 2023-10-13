@@ -15,7 +15,7 @@ data class ExplorerItem(
     val subItems: MutableList<ExplorerItem>
 ) {
     companion object {
-        fun create(file: DocumentFile) =
+        suspend fun create(file: DocumentFile) =
             ExplorerItem(
                 path = file.uri,
                 displayName = file.uri.pathSegments.last(),

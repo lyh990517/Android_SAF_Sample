@@ -141,13 +141,15 @@ class SAFViewModel : ViewModel() {
         context: Context,
         fileList: SnapshotStateList<ExplorerItem>
     ) {
-        try {
-            val file: DocumentFile? = DocumentFile.fromSingleUri(context, folderUri)
-            if (file != null && file.isFile) {
-                fileList.add(ExplorerItem.create(file))
+        viewModelScope.launch {
+            try {
+                val file: DocumentFile? = DocumentFile.fromSingleUri(context, folderUri)
+                if (file != null && file.isFile) {
+                    fileList.add(ExplorerItem.create(file))
+                }
+            } catch (e: RuntimeException) {
+                e.printStackTrace()
             }
-        } catch (e: RuntimeException) {
-            e.printStackTrace()
         }
     }
 }
