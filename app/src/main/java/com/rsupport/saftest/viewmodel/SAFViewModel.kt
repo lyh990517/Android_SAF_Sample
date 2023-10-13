@@ -8,9 +8,9 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rsupport.saftest.state.SAFState
 import com.rsupport.saftest.model.ExplorerItem
 import com.rsupport.saftest.model.ItemType
+import com.rsupport.saftest.state.SAFState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

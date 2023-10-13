@@ -2,17 +2,15 @@ package com.rsupport.saftest
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rsupport.saftest.model.Route
-import com.rsupport.saftest.util.Util
 import com.rsupport.saftest.screen.LogScreen
 import com.rsupport.saftest.screen.SAFScreen
+import com.rsupport.saftest.util.Util
 import com.rsupport.saftest.viewmodel.SAFViewModel
 
 @Composable
