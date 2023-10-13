@@ -8,6 +8,7 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,9 +35,12 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.rsupport.saftest.state.SAFState
 import com.rsupport.saftest.model.ExplorerItem
 import com.rsupport.saftest.model.Route
@@ -144,7 +148,10 @@ private fun SAFContent(
     navHostController: NavHostController
 ) {
     val isSending = rememberSaveable { mutableStateOf(false) }
-    Column(Modifier.fillMaxSize()) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)) {
         Row(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -216,4 +223,25 @@ private fun SAFContent(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun SAFScreenPreview() {
+    SAFScreen(
+        navHostController = rememberNavController(),
+        uiState = remember { mutableStateOf(SAFState.Idle) },
+        getFileInfo = { _, _, _ -> },
+        getFolderInfo = { _, _, _ -> },
+        onFileSelect = { },
+        onFolderSelect = { },
+        onSet = {},
+        onSend = { },
+        onCancel = { },
+        onInfo = { },
+        uploadProgress = remember { mutableStateOf(50.0) },
+        fileIndex = remember { mutableStateOf(0) },
+        totalSize = remember { mutableStateOf(100000) },
+        uploaded = remember { mutableStateOf(50000) }
+    )
 }
