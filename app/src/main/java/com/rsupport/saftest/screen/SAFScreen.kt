@@ -42,9 +42,7 @@ fun SAFScreen(
     uiState: State<SAFState>,
     getFileInfo: (Uri, Context, SnapshotStateList<ExplorerItem>) -> Unit,
     getFolderInfo: (Uri, Context, SnapshotStateList<ExplorerItem>) -> Unit,
-    onFileSelect: () -> Unit,
-    onFolderSelect: () -> Unit,
-    onSet: (SnapshotStateList<ExplorerItem>) -> Unit,
+    onChangeState: (SAFState) -> Unit,
     onSend: () -> Unit,
     onCancel: () -> Unit,
     onInfo: () -> Unit,
@@ -73,15 +71,14 @@ fun SAFScreen(
                 getFolderInfo(file, context, fileList)
             }
         }
-        onSet(fileList)
+        onChangeState(SAFState.Idle)
     }
     when (uiState.value) {
         SAFState.Idle -> {
             SAFContent(
                 fileList,
                 isMultiple,
-                onFileSelect,
-                onFolderSelect,
+                onChangeState,
                 onSend,
                 onCancel,
                 onInfo,
@@ -125,8 +122,7 @@ fun SAFScreen(
 fun SAFContent(
     fileList: SnapshotStateList<ExplorerItem>,
     isMultiple: MutableState<Boolean>,
-    onFileSelect: () -> Unit,
-    onFolderSelect: () -> Unit,
+    onChangeState: (SAFState) -> Unit,
     onSend: () -> Unit,
     onCancel: () -> Unit,
     onInfo: () -> Unit,
@@ -145,8 +141,7 @@ fun SAFContent(
         StatusView(Modifier,isMultiple, uploadProgress, totalSize, uploaded)
         FileListView(fileList, modifier, fileIndex)
         ButtonMenuView(
-            onFileSelect,
-            onFolderSelect,
+            onChangeState,
             isSending,
             onSend,
             onCancel,
@@ -164,9 +159,7 @@ fun SAFScreenPreview() {
         uiState = remember { mutableStateOf(SAFState.Idle) },
         getFileInfo = { _, _, _ -> },
         getFolderInfo = { _, _, _ -> },
-        onFileSelect = { },
-        onFolderSelect = { },
-        onSet = {},
+        onChangeState = {},
         onSend = { },
         onCancel = { },
         onInfo = { },

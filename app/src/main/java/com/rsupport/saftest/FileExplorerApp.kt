@@ -31,6 +31,7 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
             SAFScreen(
                 navHostController,
                 viewModel.uiState.collectAsState(),
+                onChangeState = { safState ->  viewModel.changeState(safState) },
                 getFileInfo = { uri, context, explorerItems ->
                     viewModel.getFileInfo(
                         uri,
@@ -46,13 +47,10 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
                         0
                     )
                 },
-                onFileSelect = { viewModel.selectFile() },
-                onFolderSelect = { viewModel.selectFolder() },
-                onSet = { viewModel.setFileList(it) },
                 onSend = { viewModel.sendFile(context.contentResolver) },
                 onCancel = { viewModel.cancel() },
                 onInfo = { viewModel.showInfo()},
-                fileList = viewModel.fileList.value ?: remember { mutableStateListOf() },
+                fileList = viewModel.fileList,
                 uploadProgress = viewModel.uploadProgress.collectAsState(),
                 fileIndex = viewModel.fileIndex.collectAsState(),
                 totalSize = viewModel.uploadSize.collectAsState(),

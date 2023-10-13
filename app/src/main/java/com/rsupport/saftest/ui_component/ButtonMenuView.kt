@@ -16,11 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.rsupport.saftest.model.Route
+import com.rsupport.saftest.state.SAFState
 
 @Composable
 fun ButtonMenuView(
-    onFileSelect: () -> Unit,
-    onFolderSelect: () -> Unit,
+    onChangeState: (SAFState) -> Unit,
     isSending: MutableState<Boolean>,
     onSend: () -> Unit,
     onCancel: () -> Unit,
@@ -32,12 +32,16 @@ fun ButtonMenuView(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Button(
-            modifier = Modifier, onClick = onFileSelect
+            modifier = Modifier, onClick = {
+                onChangeState(SAFState.OnSAFFile)
+            }
         ) {
             Text(text = "파일 선택")
         }
         Button(
-            modifier = Modifier, onClick = onFolderSelect
+            modifier = Modifier, onClick = {
+                onChangeState(SAFState.OnSAFFolder)
+            }
         ) {
             Text(text = "폴더 전체 선택")
         }
@@ -64,8 +68,7 @@ fun ButtonMenuView(
 @Preview
 fun ButtonMenuViewPreview() {
     ButtonMenuView(
-        onFileSelect = {},
-        onFolderSelect = {},
+        onChangeState = {},
         isSending = remember { mutableStateOf(false) },
         onSend = {},
         onCancel = {},
