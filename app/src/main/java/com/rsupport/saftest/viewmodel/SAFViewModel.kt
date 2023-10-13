@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.rsupport.saftest.model.ExplorerItem
 import com.rsupport.saftest.model.ItemType
 import com.rsupport.saftest.state.SAFState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -103,28 +104,31 @@ class SAFViewModel : ViewModel() {
         parent: MutableList<ExplorerItem> = mutableListOf()
     ) {
         try {
-            val file: DocumentFile? = DocumentFile.fromTreeUri(context, folderUri)
-            when {
-                file != null && file.isDirectory -> {
-                    val files = file.listFiles().map { ExplorerItem.create(it) }
-                    val folder = ExplorerItem.create(file)
-                    if (depth == 1) fileList.add(folder)
-                    files.forEachIndexed { _, childFile ->
-                        if (depth == 1) folder.subItems.add(childFile)
-                        if (depth > 1) parent.add(childFile)
-                        getFolderInfo(
-                            childFile.path,
-                            context,
-                            fileList,
-                            depth + 1,
-                            childFile.subItems
-                        )
+            viewModelScope.launch(Dispatchers.Default) {
+                val file: DocumentFile? = DocumentFile.fromTreeUri(context, folderUri)
+                when {
+                    file != null && file.isDirectory -> {
+                        val files = file.listFiles().map { ExplorerItem.create(it) }
+                        val folder = ExplorerItem.create(file)
+                        if (depth == 1) fileList.add(folder)
+                        files.forEachIndexed { _, childFile ->
+                            if (depth == 1) folder.subItems.add(childFile)
+                            if (depth > 1) parent.add(childFile)
+                            getFolderInfo(
+                                childFile.path,
+                                context,
+                                fileList,
+                                depth + 1,
+                                childFile.subItems
+                            )
+                        }
+                    }
+
+                    file != null && file.isFile -> {
+                        if (depth == 1) fileList.add(ExplorerItem.create(file))
                     }
                 }
-
-                file != null && file.isFile -> {
-                    if (depth == 1) fileList.add(ExplorerItem.create(file))
-                }
+                if(depth == 0){ _uiState.value = SAFState.Idle }
             }
         } catch (e: RuntimeException) {
             getFileInfo(folderUri, context, fileList)

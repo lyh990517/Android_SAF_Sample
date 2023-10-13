@@ -19,7 +19,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -36,9 +35,6 @@ import com.rsupport.saftest.ui_component.FileListView
 import com.rsupport.saftest.ui_component.StatusView
 import com.rsupport.saftest.ui_component.dummyItem1
 import com.rsupport.saftest.ui_component.dummyItem2
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun SAFScreen(
@@ -59,29 +55,23 @@ fun SAFScreen(
 ) {
     val context = LocalContext.current
     val isMultiple = rememberSaveable { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { activityResult ->
-        scope.launch {
-            onChangeState(SAFState.Loading)
-            withContext(Dispatchers.Default){
-                with(activityResult.data) {
-                    this?.clipData.let { data ->
-                        val size = data?.itemCount
-                        repeat(size ?: 0) { idx ->
-                            data?.getItemAt(idx)?.uri?.let { uri ->
-                                getFileInfo(uri, context, fileList)
-                            }
-                        }
-
-                    }
-                    this?.data?.let { file ->
-                        getFolderInfo(file, context, fileList)
+        onChangeState(SAFState.Loading)
+        with(activityResult.data) {
+            this?.clipData.let { data ->
+                val size = data?.itemCount
+                repeat(size ?: 0) { idx ->
+                    data?.getItemAt(idx)?.uri?.let { uri ->
+                        getFileInfo(uri, context, fileList)
                     }
                 }
+
             }
-            onChangeState(SAFState.Idle)
+            this?.data?.let { file ->
+                getFolderInfo(file, context, fileList)
+            }
         }
     }
     when (uiState.value) {
@@ -147,9 +137,10 @@ fun SAFContent(
     Column(
         Modifier
             .fillMaxSize()
-            .background(Color.White)) {
+            .background(Color.White)
+    ) {
         val modifier = Modifier.weight(1f)
-        StatusView(Modifier,isMultiple, uploadProgress, totalSize, uploaded)
+        StatusView(Modifier, isMultiple, uploadProgress, totalSize, uploaded)
         FileListView(fileList, modifier, fileIndex)
         ButtonMenuView(
             onChangeState,
