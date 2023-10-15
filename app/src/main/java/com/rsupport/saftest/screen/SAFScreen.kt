@@ -1,5 +1,6 @@
 package com.rsupport.saftest.screen
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_OPEN_DOCUMENT
@@ -58,24 +59,28 @@ fun SAFScreen(
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { activityResult ->
-        onChangeState(SAFState.Loading)
-        with(activityResult.data) {
-            this?.clipData.let { data ->
-                val size = data?.itemCount
-                repeat(size ?: 0) { idx ->
-                    data?.getItemAt(idx)?.uri?.let { uri ->
-                        getFileInfo(uri, context, fileList)
+        if(activityResult.resultCode == RESULT_OK){
+            onChangeState(SAFState.Loading)
+            with(activityResult.data) {
+                this?.clipData.let { data ->
+                    val size = data?.itemCount
+                    repeat(size ?: 0) { idx ->
+                        data?.getItemAt(idx)?.uri?.let { uri ->
+                            getFileInfo(uri, context, fileList)
+                        }
+                    }
+
+                }
+                this?.data?.let { file ->
+                    try {
+                        getFolderInfo(file, context, fileList)
+                    } catch (e: Exception) {
+                        getFileInfo(file, context, fileList)
                     }
                 }
-
             }
-            this?.data?.let { file ->
-                try {
-                    getFolderInfo(file, context, fileList)
-                } catch (e: Exception) {
-                    getFileInfo(file, context, fileList)
-                }
-            }
+        }else{
+            onChangeState(SAFState.Idle)
         }
     }
     when (uiState.value) {
