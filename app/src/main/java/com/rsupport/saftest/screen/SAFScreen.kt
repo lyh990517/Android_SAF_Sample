@@ -17,6 +17,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,68 +37,48 @@ import com.rsupport.saftest.ui_component.FileListView
 import com.rsupport.saftest.ui_component.StatusView
 import com.rsupport.saftest.ui_component.dummyItem1
 import com.rsupport.saftest.ui_component.dummyItem2
+import com.rsupport.saftest.viewmodel.SAFViewModel
 
 @Composable
 fun SAFScreen(
     navHostController: NavHostController,
-    uiState: State<SAFState>,
-    getFileInfo: (Uri, Context, SnapshotStateList<ExplorerItem>) -> Unit,
-    getFolderInfo: (Uri, Context, SnapshotStateList<ExplorerItem>) -> Unit,
-    onChangeState: (SAFState) -> Unit,
-    onSend: () -> Unit,
-    onCancel: () -> Unit,
-    onInfo: () -> Unit,
-    onDelete: () -> Unit,
-    fileList: SnapshotStateList<ExplorerItem>,
-    uploadProgress: State<Double>,
-    fileIndex: State<Int>,
-    totalSize: State<Int>,
-    uploaded: State<Int>,
+    viewModel: SAFViewModel // 뷰모델을 인자로 받음
 ) {
+    val uiState = viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isMultiple = rememberSaveable { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { activityResult ->
-        if(activityResult.resultCode == RESULT_OK){
-            onChangeState(SAFState.Loading)
+        if (activityResult.resultCode == RESULT_OK) {
+            viewModel.changeState(SAFState.Loading)
             with(activityResult.data) {
                 this?.clipData.let { data ->
                     val size = data?.itemCount
                     repeat(size ?: 0) { idx ->
                         data?.getItemAt(idx)?.uri?.let { uri ->
-                            getFileInfo(uri, context, fileList)
+                            viewModel.getFileInfo(uri, context, viewModel.fileList)
                         }
                     }
-
                 }
                 this?.data?.let { file ->
                     try {
-                        getFolderInfo(file, context, fileList)
+                        viewModel.getFolderInfo(file, context, viewModel.fileList, 0)
                     } catch (e: Exception) {
-                        getFileInfo(file, context, fileList)
+                        viewModel.getFileInfo(file, context, viewModel.fileList)
                     }
                 }
             }
-        }else{
-            onChangeState(SAFState.Idle)
+        } else {
+            viewModel.changeState(SAFState.Idle)
         }
     }
     when (uiState.value) {
         SAFState.Idle -> {
             SAFContent(
-                fileList,
-                isMultiple,
-                onChangeState,
-                onSend,
-                onCancel,
-                onInfo,
-                onDelete,
-                uploadProgress,
-                fileIndex,
-                totalSize,
-                uploaded,
-                navHostController
+                viewModel = viewModel, // 뷰모델을 인자로 전달
+                navHostController = navHostController,
+                isMultiple = isMultiple
             )
         }
 
@@ -122,64 +103,53 @@ fun SAFScreen(
         }
     }
     BackHandler {
-        onCancel()
+        viewModel.cancel()
         navHostController.popBackStack()
     }
 }
 
+
 @Composable
 fun SAFContent(
-    fileList: SnapshotStateList<ExplorerItem>,
-    isMultiple: MutableState<Boolean>,
-    onChangeState: (SAFState) -> Unit,
-    onSend: () -> Unit,
-    onCancel: () -> Unit,
-    onInfo: () -> Unit,
-    onDelete: () -> Unit,
-    uploadProgress: State<Double>,
-    fileIndex: State<Int>,
-    totalSize: State<Int>,
-    uploaded: State<Int>,
-    navHostController: NavHostController
+    viewModel: SAFViewModel,
+    navHostController: NavHostController,
+    isMultiple: MutableState<Boolean>
 ) {
     val isSending = rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
     Column(
         Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
         val modifier = Modifier.weight(1f)
-        StatusView(Modifier, isMultiple, uploadProgress, totalSize, uploaded)
-        FileListView(fileList, modifier, fileIndex)
+        StatusView(
+            Modifier,
+            isMultiple,
+            viewModel.uploadProgress.collectAsState(),
+            viewModel.uploadSize.collectAsState(),
+            viewModel.uploaded.collectAsState()
+        )
+        FileListView(viewModel.fileList, modifier, viewModel.fileIndex.collectAsState())
         ButtonMenuView(
-            onChangeState,
+            { viewModel.changeState(it) },
             isSending,
-            onSend,
-            onCancel,
-            onInfo,
-            onDelete,
+            { viewModel.sendFile(context.contentResolver) },
+            { viewModel.cancel() },
+            { viewModel.showInfo() },
+            { viewModel.deleteFileList() },
             navHostController
         )
     }
 }
 
+
 @Preview
 @Composable
 fun SAFScreenPreview() {
+    val viewModel = SAFViewModel()
     SAFScreen(
         navHostController = rememberNavController(),
-        uiState = remember { mutableStateOf(SAFState.Idle) },
-        getFileInfo = { _, _, _ -> },
-        getFolderInfo = { _, _, _ -> },
-        onChangeState = {},
-        onSend = { },
-        onCancel = { },
-        onInfo = { },
-        onDelete = { },
-        fileList = remember { mutableStateListOf(dummyItem1, dummyItem2) },
-        uploadProgress = remember { mutableStateOf(50.0) },
-        fileIndex = remember { mutableStateOf(0) },
-        totalSize = remember { mutableStateOf(100000) },
-        uploaded = remember { mutableStateOf(50000) }
+        viewModel = viewModel
     )
 }

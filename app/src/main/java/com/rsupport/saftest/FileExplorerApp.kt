@@ -28,32 +28,7 @@ fun FileExplorerApp(navHostController: NavHostController = rememberNavController
         composable(Route.SAF_EXPLORER) {
             SAFScreen(
                 navHostController,
-                viewModel.uiState.collectAsState(),
-                onChangeState = { safState ->  viewModel.changeState(safState) },
-                getFileInfo = { uri, context, explorerItems ->
-                    viewModel.getFileInfo(
-                        uri,
-                        context,
-                        explorerItems
-                    )
-                },
-                getFolderInfo = { uri, context, explorerItems ->
-                    viewModel.getFolderInfo(
-                        uri,
-                        context,
-                        explorerItems,
-                        0
-                    )
-                },
-                onSend = { viewModel.sendFile(context.contentResolver) },
-                onCancel = { viewModel.cancel() },
-                onInfo = { viewModel.showInfo() },
-                onDelete = { viewModel.deleteFileList() },
-                fileList = viewModel.fileList,
-                uploadProgress = viewModel.uploadProgress.collectAsState(),
-                fileIndex = viewModel.fileIndex.collectAsState(),
-                totalSize = viewModel.uploadSize.collectAsState(),
-                uploaded = viewModel.uploaded.collectAsState(),
+                viewModel = viewModel
             )
         }
     }
