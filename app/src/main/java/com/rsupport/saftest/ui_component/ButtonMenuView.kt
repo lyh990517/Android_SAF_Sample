@@ -11,6 +11,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -29,7 +30,7 @@ fun ButtonMenuView(
     navHostController: NavHostController
 ) {
     Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        modifier = Modifier.horizontalScroll(rememberScrollState()).testTag("button_view"),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Button(
