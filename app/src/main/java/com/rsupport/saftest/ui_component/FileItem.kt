@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,7 +47,8 @@ fun FileItem(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .clickable { onClick(file) },
+            .clickable { onClick(file) }
+            .testTag("file_item"),
         elevation = CardDefaults.cardElevation(10.dp),
         colors = CardDefaults.cardColors(Color.LightGray)
     ) {
@@ -67,6 +69,7 @@ fun FileItem(
                     text = Util.extractLastPathComponent(file.displayName),
                     modifier = Modifier
                         .padding(10.dp)
+                        .testTag("file_name")
                 )
             }
             Column(Modifier.padding(8.dp)) {

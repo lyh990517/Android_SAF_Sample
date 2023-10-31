@@ -16,6 +16,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import com.rsupport.saftest.model.ExplorerItem
 
@@ -26,7 +27,7 @@ fun FileListView(
     fileIndex: State<Int>
 ) {
     if (fileList.isNotEmpty()) {
-        LazyColumn(modifier) {
+        LazyColumn(modifier.testTag("file_list")) {
             itemsIndexed(fileList.toList()) { index, file ->
                 FileItem(file, index, fileIndex) { explorerItem ->
                     fileList.remove(explorerItem)
@@ -37,6 +38,7 @@ fun FileListView(
         Box(
             modifier = modifier
                 .fillMaxWidth()
+                .testTag("empty")
         ) {
             Text(text = "Empty", Modifier.align(Alignment.Center))
         }

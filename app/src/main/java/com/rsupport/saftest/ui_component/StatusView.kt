@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -37,6 +38,7 @@ fun StatusView(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "파일 다중 선택")
                 Checkbox(
+                    modifier = Modifier.testTag("file_option"),
                     onCheckedChange = { isMultiple.value = !isMultiple.value },
                     checked = isMultiple.value
                 )
