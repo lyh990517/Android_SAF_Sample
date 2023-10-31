@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.rsupport.saftest"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.rsupport.saftest"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -70,4 +70,8 @@ dependencies {
     implementation ("com.jakewharton.timber:timber:5.0.1")
 
     implementation("androidx.navigation:navigation-compose:2.6.0")
+
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.5.4")
+
 }
